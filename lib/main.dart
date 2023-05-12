@@ -99,6 +99,7 @@ class _MyHomePageState extends State<MyHomePage> {
               child: const Text('Add'),
               onPressed: () {
                 Navigator.of(context).pop();
+                widget.dao.insertCall(Call (1, "test", "test", "test"));
               },
             ),
           ],
