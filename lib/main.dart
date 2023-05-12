@@ -17,6 +17,10 @@ Future<void> main() async {
   // dao that the app will interact with
   final dao = database.callDao;
 
+  // TODO: Remove. This is used for testing to ensure we don't get into
+  // a state where the app does not work while testing
+  await dao.deleteAllCalls();
+
   runApp(MyApp(dao));
 }
 
@@ -56,18 +60,43 @@ class _MyHomePageState extends State<MyHomePage> {
 
 // Future event which will show a dialog for adding a new Call
   Future<void> _showMyDialog() async {
+    // Controllers for form
+    final TextEditingController nameController = TextEditingController();
+    final TextEditingController ttsController = TextEditingController();
+
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('New Call'),
-          content: const SingleChildScrollView(
-            child: ListBody(
-              children: <Widget>[
-                Text('This is a demo alert dialog.'),
-                Text('Would you like to approve of this message?'),
-              ],
+          title: const Text('Add Call'),
+          content: SingleChildScrollView(
+            child: Form(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  ElevatedButton(
+                      onPressed: () => {}, child: Text('Hello World')),
+                  const SizedBox(height: 15),
+                  TextFormField(
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Name',
+                    ),
+                    controller: nameController,
+                  ),
+                  const SizedBox(height: 15),
+                  TextFormField(
+                    keyboardType: TextInputType.multiline,
+                    maxLines: null,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Text to Speech',
+                    ),
+                    controller: ttsController,
+                  ),
+                ],
+              ),
             ),
           ),
           actions: <Widget>[
@@ -80,9 +109,11 @@ class _MyHomePageState extends State<MyHomePage> {
             TextButton(
               child: const Text('Add'),
               onPressed: () {
+                final name = nameController.text;
+                final tts = ttsController.text;
+
                 Navigator.of(context).pop();
-                widget.dao.insertCall(Call(null, "Hello World", "test",
-                    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAApgAAAKYB3X3/OAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAANCSURBVEiJtZZPbBtFFMZ/M7ubXdtdb1xSFyeilBapySVU8h8OoFaooFSqiihIVIpQBKci6KEg9Q6H9kovIHoCIVQJJCKE1ENFjnAgcaSGC6rEnxBwA04Tx43t2FnvDAfjkNibxgHxnWb2e/u992bee7tCa00YFsffekFY+nUzFtjW0LrvjRXrCDIAaPLlW0nHL0SsZtVoaF98mLrx3pdhOqLtYPHChahZcYYO7KvPFxvRl5XPp1sN3adWiD1ZAqD6XYK1b/dvE5IWryTt2udLFedwc1+9kLp+vbbpoDh+6TklxBeAi9TL0taeWpdmZzQDry0AcO+jQ12RyohqqoYoo8RDwJrU+qXkjWtfi8Xxt58BdQuwQs9qC/afLwCw8tnQbqYAPsgxE1S6F3EAIXux2oQFKm0ihMsOF71dHYx+f3NND68ghCu1YIoePPQN1pGRABkJ6Bus96CutRZMydTl+TvuiRW1m3n0eDl0vRPcEysqdXn+jsQPsrHMquGeXEaY4Yk4wxWcY5V/9scqOMOVUFthatyTy8QyqwZ+kDURKoMWxNKr2EeqVKcTNOajqKoBgOE28U4tdQl5p5bwCw7BWquaZSzAPlwjlithJtp3pTImSqQRrb2Z8PHGigD4RZuNX6JYj6wj7O4TFLbCO/Mn/m8R+h6rYSUb3ekokRY6f/YukArN979jcW+V/S8g0eT/N3VN3kTqWbQ428m9/8k0P/1aIhF36PccEl6EhOcAUCrXKZXXWS3XKd2vc/TRBG9O5ELC17MmWubD2nKhUKZa26Ba2+D3P+4/MNCFwg59oWVeYhkzgN/JDR8deKBoD7Y+ljEjGZ0sosXVTvbc6RHirr2reNy1OXd6pJsQ+gqjk8VWFYmHrwBzW/n+uMPFiRwHB2I7ih8ciHFxIkd/3Omk5tCDV1t+2nNu5sxxpDFNx+huNhVT3/zMDz8usXC3ddaHBj1GHj/As08fwTS7Kt1HBTmyN29vdwAw+/wbwLVOJ3uAD1wi/dUH7Qei66PfyuRj4Ik9is+hglfbkbfR3cnZm7chlUWLdwmprtCohX4HUtlOcQjLYCu+fzGJH2QRKvP3UNz8bWk1qMxjGTOMThZ3kvgLI5AzFfo379UAAAAASUVORK5CYII="));
+                widget.dao.insertCall(Call(null, name, tts, ""));
               },
             ),
           ],
@@ -95,8 +126,9 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('Danny'),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+        title: const Text('Danny (Dev)'),
       ),
       body: StreamBuilder<List<Call>>(
         stream: widget.dao.getCallsAsStream(),
@@ -110,11 +142,21 @@ class _MyHomePageState extends State<MyHomePage> {
             itemBuilder: (_, index) {
               return Container(
                 height: 50,
-                constraints: const BoxConstraints.expand(),
+                margin: const EdgeInsets.fromLTRB(12.0, 12.0, 12.0, 0.0),
+                color: const Color(0xFFFFFFFF),
                 child: IconButton(
+                  style: ButtonStyle(
+                    shape: MaterialStateProperty.all(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(0),
+                      ),
+                    ),
+                  ),
                   onPressed: () => _invokeButtonCall(calls[index]),
                   padding: const EdgeInsets.all(0.0),
-                  icon: Image.memory(base64Decode(calls[index].imageBase64)),
+                  icon: (calls[index].imageBase64.isEmpty
+                      ? const Icon(Icons.favorite)
+                      : Image.memory(base64Decode(calls[index].imageBase64))),
                 ),
               );
             },
@@ -123,9 +165,9 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showMyDialog,
-        tooltip: 'Increment',
+        tooltip: 'Add Call',
         child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ),
     );
   }
 }

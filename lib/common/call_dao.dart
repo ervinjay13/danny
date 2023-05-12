@@ -9,6 +9,9 @@ abstract class CallDao {
   
   @Query('SELECT * FROM Call')
   Stream<List<Call>> getCallsAsStream();
+  
+  @Query('DELETE FROM Call')
+  Future<void> deleteAllCalls();
 
   @insert
   Future<void> insertCall(Call call);

@@ -85,7 +85,7 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `Call` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `tts` TEXT NOT NULL, `imageBase64` TEXT NOT NULL, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `Call` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `tts` TEXT NOT NULL, `imageBase64` TEXT NOT NULL)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -140,7 +140,7 @@ class _$CallDao extends CallDao {
   Future<List<Call>> getCalls() async {
     return _queryAdapter.queryList('SELECT * FROM Call',
         mapper: (Map<String, Object?> row) => Call(
-            row['id'] as int,
+            row['id'] as int?,
             row['name'] as String,
             row['tts'] as String,
             row['imageBase64'] as String));
@@ -150,12 +150,17 @@ class _$CallDao extends CallDao {
   Stream<List<Call>> getCallsAsStream() {
     return _queryAdapter.queryListStream('SELECT * FROM Call',
         mapper: (Map<String, Object?> row) => Call(
-            row['id'] as int,
+            row['id'] as int?,
             row['name'] as String,
             row['tts'] as String,
             row['imageBase64'] as String),
         queryableName: 'Call',
         isView: false);
+  }
+
+  @override
+  Future<void> deleteAllCalls() async {
+    await _queryAdapter.queryNoReturn('DELETE FROM Call');
   }
 
   @override
