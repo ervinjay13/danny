@@ -83,22 +83,15 @@ class _MyHomePageState extends State<MyHomePage> {
             itemCount: calls.length,
             itemBuilder: (_, index) {
               return Container(
-                height: 50,
+                height: 200,
                 margin: const EdgeInsets.fromLTRB(12.0, 12.0, 12.0, 0.0),
-                color: const Color(0xFFFFFFFF),
-                child: IconButton(
-                  style: ButtonStyle(
-                    shape: MaterialStateProperty.all(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(0),
-                      ),
-                    ),
-                  ),
-                  onPressed: () => _invokeButtonCall(calls[index]),
-                  padding: const EdgeInsets.all(0.0),
-                  icon: (calls[index].imageBase64.isEmpty
-                      ? const Icon(Icons.favorite)
-                      : Image.memory(base64Decode(calls[index].imageBase64))),
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                ),
+                child: GestureDetector(
+                  onTap: () => _invokeButtonCall(calls[index]),
+                  child: Image.memory(base64Decode(calls[index].imageBase64),
+                      fit: BoxFit.cover, alignment: Alignment.center),
                 ),
               );
             },
