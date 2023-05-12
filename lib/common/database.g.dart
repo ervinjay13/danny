@@ -103,7 +103,7 @@ class _$CallDao extends CallDao {
   _$CallDao(
     this.database,
     this.changeListener,
-  )   : _queryAdapter = QueryAdapter(database),
+  )   : _queryAdapter = QueryAdapter(database, changeListener),
         _callInsertionAdapter = InsertionAdapter(
             database,
             'Call',
@@ -112,7 +112,8 @@ class _$CallDao extends CallDao {
                   'name': item.name,
                   'tts': item.tts,
                   'imageBase64': item.imageBase64
-                }),
+                },
+            changeListener),
         _callDeletionAdapter = DeletionAdapter(
             database,
             'Call',
@@ -122,7 +123,8 @@ class _$CallDao extends CallDao {
                   'name': item.name,
                   'tts': item.tts,
                   'imageBase64': item.imageBase64
-                });
+                },
+            changeListener);
 
   final sqflite.DatabaseExecutor database;
 
@@ -142,6 +144,18 @@ class _$CallDao extends CallDao {
             row['name'] as String,
             row['tts'] as String,
             row['imageBase64'] as String));
+  }
+
+  @override
+  Stream<List<Call>> getCallsAsStream() {
+    return _queryAdapter.queryListStream('SELECT * FROM Call',
+        mapper: (Map<String, Object?> row) => Call(
+            row['id'] as int,
+            row['name'] as String,
+            row['tts'] as String,
+            row['imageBase64'] as String),
+        queryableName: 'Call',
+        isView: false);
   }
 
   @override
