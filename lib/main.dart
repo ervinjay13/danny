@@ -1,11 +1,24 @@
+import 'package:danny/common/call_dao.dart';
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const MyApp());
+import 'common/database.dart';
+
+Future<void> main() async {
+  // Initialize the database
+  final database = await $FloorAppDatabase
+      .databaseBuilder('app_database.db')
+      .build();
+  
+  // dao that the app will interact with
+  final dao = database.callDao;
+  
+  runApp(MyApp(dao));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final CallDao dao;
+  
+  const MyApp(this.dao, {super.key});
 
   // This widget is the root of your application.
   @override
@@ -31,13 +44,16 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Danny'),
+      home: MyHomePage(
+        title: 'Danny', 
+        dao: dao
+      ),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+  const MyHomePage({super.key, required this.title, required this.dao});
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -49,12 +65,13 @@ class MyHomePage extends StatefulWidget {
   // always marked "final".
 
   final String title;
+  final CallDao dao;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> {  
   int _counter = 0;
 
   void _incrementCounter() {
