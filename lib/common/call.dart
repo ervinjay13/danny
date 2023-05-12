@@ -4,8 +4,8 @@ import 'package:floor/floor.dart';
 @entity
 class Call {
   /// Unique identifier
-  @primaryKey
-  final int id;
+  @PrimaryKey(autoGenerate: true)
+  final int? id;
 
   /// The name of the call
   final String name;

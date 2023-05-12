@@ -2,10 +2,13 @@ import 'package:danny/common/call.dart';
 import 'package:danny/common/call_dao.dart';
 import 'package:floor/floor.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 
 import 'common/database.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
   // Initialize the database
   final database =
       await $FloorAppDatabase.databaseBuilder('app_database.db').build();
@@ -51,7 +54,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title, required this.dao});
+  MyHomePage({super.key, required this.title, required this.dao});
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -65,13 +68,13 @@ class MyHomePage extends StatefulWidget {
   final String title;
   final CallDao dao;
 
+  final FlutterTts tts = FlutterTts();
+
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
 // Future event which will show a dialog for adding a new Call
   Future<void> _showMyDialog() async {
     return showDialog<void>(
@@ -99,7 +102,9 @@ class _MyHomePageState extends State<MyHomePage> {
               child: const Text('Add'),
               onPressed: () {
                 Navigator.of(context).pop();
-                widget.dao.insertCall(Call (1, "test", "test", "test"));
+                widget.dao
+                    .insertCall(Call(null, "Hello World", "test", "test"));
+                widget.tts.speak("hello i am alive");
               },
             ),
           ],
@@ -131,15 +136,15 @@ class _MyHomePageState extends State<MyHomePage> {
         builder: (_, snapshot) {
           if (!snapshot.hasData) return Container();
 
-          final tasks = snapshot.requireData;
+          final calls = snapshot.requireData;
 
           return ListView.builder(
-            itemCount: tasks.length,
+            itemCount: calls.length,
             itemBuilder: (_, index) {
               return Container(
                 height: 50,
                 color: Colors.white,
-                child: Center(child: Text("test text")),
+                child: Center(child: Text(calls[index].name)),
               );
             },
           );
