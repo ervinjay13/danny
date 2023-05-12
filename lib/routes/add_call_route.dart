@@ -1,13 +1,26 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:camera/camera.dart';
 import 'package:danny/routes/camera_route.dart';
 import 'package:flutter/material.dart';
 
 import '../common/call.dart';
 import '../common/call_dao.dart';
 
-class AddCallRoute extends StatelessWidget {
-  AddCallRoute({super.key, required this.dao});
+class AddCallRoute extends StatefulWidget {
+  const AddCallRoute({super.key, required this.dao, required this.camera});
 
   final CallDao dao;
+  final CameraDescription camera;
+
+  @override
+  State<AddCallRoute> createState() => _AddCallRouteState();
+}
+
+class _AddCallRouteState extends State<AddCallRoute> {
+  // The path of the image
+  String? _imagePath;
 
   // Controllers for form
   final TextEditingController nameController = TextEditingController();
@@ -24,10 +37,16 @@ class AddCallRoute extends StatelessWidget {
           IconButton(
               onPressed: () {
                 final name = nameController.text;
-                final tts = ttsController.text;
-
+                final tts = ttsController.text;      
+                String img64 = "";
+                                
+                if (_imagePath != null) {
+                  final bytes = File(_imagePath!).readAsBytesSync();
+                  img64 = base64Encode(bytes);
+                }
+                
+                widget.dao.insertCall(Call(null, name, tts, img64));
                 Navigator.of(context).pop();
-                dao.insertCall(Call(null, name, tts, ""));
               },
               icon: const Icon(Icons.save))
         ],
@@ -63,8 +82,13 @@ class AddCallRoute extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                         fullscreenDialog: true,
-                        builder: (context) => const CameraRoute()),
-                  );
+                        builder: (context) =>
+                            CameraRoute(camera: widget.camera)),
+                  ).then((value) {
+                    setState(() {
+                      _imagePath = value;
+                    });
+                  });
                 },
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size.fromHeight(60),
@@ -74,6 +98,11 @@ class AddCallRoute extends StatelessWidget {
                 ),
                 child: const Text('Take Photo'),
               ),
+              const SizedBox(height: 15),
+              (_imagePath != null
+                  ? Image.file(File(_imagePath!))
+                  : Container()),
+              Text(_imagePath ?? "No Image"),
             ],
           ),
         ),
