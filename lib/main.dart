@@ -1,23 +1,24 @@
+import 'package:danny/common/call.dart';
 import 'package:danny/common/call_dao.dart';
+import 'package:floor/floor.dart';
 import 'package:flutter/material.dart';
 
 import 'common/database.dart';
 
 Future<void> main() async {
   // Initialize the database
-  final database = await $FloorAppDatabase
-      .databaseBuilder('app_database.db')
-      .build();
-  
+  final database =
+      await $FloorAppDatabase.databaseBuilder('app_database.db').build();
+
   // dao that the app will interact with
   final dao = database.callDao;
-  
+
   runApp(MyApp(dao));
 }
 
 class MyApp extends StatelessWidget {
   final CallDao dao;
-  
+
   const MyApp(this.dao, {super.key});
 
   // This widget is the root of your application.
@@ -44,10 +45,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
         useMaterial3: true,
       ),
-      home: MyHomePage(
-        title: 'Danny', 
-        dao: dao
-      ),
+      home: MyHomePage(title: 'Danny', dao: dao),
     );
   }
 }
@@ -71,7 +69,7 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {  
+class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
 // Future event which will show a dialog for adding a new Call
@@ -101,6 +99,7 @@ class _MyHomePageState extends State<MyHomePage> {
               child: const Text('Add'),
               onPressed: () {
                 Navigator.of(context).pop();
+                widget.dao.insertCall(Call (1, "test", "test", "test"));
               },
             ),
           ],
@@ -127,19 +126,25 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: ListView.separated(
-        padding: const EdgeInsets.all(8),
-        itemCount: 10,
-        itemBuilder: (BuildContext context, int index) {
-          return Container(
-            height: 50,
-            color: Colors.white,
-            child: Center(child: Text("test text")),
+      body: StreamBuilder<List<Call>>(
+        stream: widget.dao.getCallsAsStream(),
+        builder: (_, snapshot) {
+          if (!snapshot.hasData) return Container();
+
+          final tasks = snapshot.requireData;
+
+          return ListView.builder(
+            itemCount: tasks.length,
+            itemBuilder: (_, index) {
+              return Container(
+                height: 50,
+                color: Colors.white,
+                child: Center(child: Text("test text")),
+              );
+            },
           );
         },
-        separatorBuilder: (BuildContext context, int index) => const Divider(),
       ),
-
       floatingActionButton: FloatingActionButton(
         onPressed: _showMyDialog,
         tooltip: 'Increment',
