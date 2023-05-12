@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:danny/common/call.dart';
 import 'package:danny/common/call_dao.dart';
+import 'package:danny/routes/add_call_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
@@ -164,7 +165,14 @@ class _MyHomePageState extends State<MyHomePage> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _showMyDialog,
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                fullscreenDialog: true,
+                builder: (context) => AddCallRoute(dao: widget.dao)),
+          );
+        },
         tooltip: 'Add Call',
         child: const Icon(Icons.add),
       ),
