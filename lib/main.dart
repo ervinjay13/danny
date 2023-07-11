@@ -83,15 +83,30 @@ class _MyHomePageState extends State<MyHomePage> {
             itemCount: calls.length,
             itemBuilder: (_, index) {
               return Container(
-                height: 200,
+                // height: 500,
                 margin: const EdgeInsets.fromLTRB(12.0, 12.0, 12.0, 0.0),
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                 ),
-                child: GestureDetector(
-                  onTap: () => _invokeButtonCall(calls[index]),
-                  child: Image.memory(base64Decode(calls[index].imageBase64),
-                      fit: BoxFit.cover, alignment: Alignment.center),
+                child: Stack(
+                  alignment: Alignment.bottomCenter,
+                  children: [
+                    Container(
+                      // height: 500,
+                      child: GestureDetector(
+                        onTap: () => _invokeButtonCall(calls[index]),
+                        child: Image.memory(
+                            base64Decode(calls[index].imageBase64),
+                            fit: BoxFit.cover,
+                            alignment: Alignment.center),
+                      ),
+                    ),
+                    Container(
+                      child: Text('this is a test message',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 25.0)),
+                    )
+                  ],
                 ),
               );
             },
