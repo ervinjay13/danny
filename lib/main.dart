@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:camera/camera.dart';
-import 'package:danny/common/call.dart';
-import 'package:danny/common/call_dao.dart';
-import 'package:danny/routes/add_call_route.dart';
+import 'package:project_danny/common/call.dart';
+import 'package:project_danny/common/call_dao.dart';
+import 'package:project_danny/routes/add_call_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
@@ -70,7 +70,7 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
-        title: const Text('Danny (Dev)'),
+        title: const Text('Project Danny'),
       ),
       body: StreamBuilder<List<Call>>(
         stream: widget.dao.getCallsAsStream(),
@@ -91,21 +91,16 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Stack(
                   alignment: Alignment.bottomCenter,
                   children: [
-                    Container(
-                      // height: 500,
-                      child: GestureDetector(
-                        onTap: () => _invokeButtonCall(calls[index]),
-                        child: Image.memory(
-                            base64Decode(calls[index].imageBase64),
-                            fit: BoxFit.cover,
-                            alignment: Alignment.center),
-                      ),
+                    GestureDetector(
+                      onTap: () => _invokeButtonCall(calls[index]),
+                      child: Image.memory(
+                          base64Decode(calls[index].imageBase64),
+                          fit: BoxFit.cover,
+                          alignment: Alignment.center),
                     ),
-                    Container(
-                      child: Text('this is a test message',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 25.0)),
-                    )
+                    const Text('this is a test message',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 25.0))
                   ],
                 ),
               );

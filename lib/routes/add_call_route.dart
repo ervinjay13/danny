@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:camera/camera.dart';
-import 'package:danny/routes/camera_route.dart';
+import 'package:project_danny/routes/camera_route.dart';
 import 'package:flutter/material.dart';
 
 import '../common/call.dart';

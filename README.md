@@ -1,16 +1,13 @@
-# danny
+# Project Danny
 
-A new Flutter project.
+A voice assistance application that allows the ability to request objects / services 
+via Text-To-Speech using touch.
+
+## Overview
+
+- Data persisted to device via a sqlite database interacted with via `floor`
+- Text-to-speech functionality provided by `flutter_tts`
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+1. Run `flutter packages pub run build_runner build` to ensure database files are generated
