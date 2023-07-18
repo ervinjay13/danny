@@ -6,6 +6,7 @@ import 'package:project_danny/common/call_dao.dart';
 import 'package:project_danny/routes/add_call_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:project_danny/routes/manage_calls_route.dart';
 
 import 'common/database.dart';
 
@@ -93,14 +94,22 @@ class _MyHomePageState extends State<MyHomePage> {
                   children: [
                     GestureDetector(
                       onTap: () => _invokeButtonCall(calls[index]),
-                      child: Image.memory(
-                          base64Decode(calls[index].imageBase64),
-                          fit: BoxFit.cover,
-                          alignment: Alignment.center),
+                      child: AspectRatio(
+                        aspectRatio: 1.0,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8.0),
+                          child: Image.memory(
+                              base64Decode(calls[index].imageBase64),
+                              fit: BoxFit.cover,
+                              alignment: Alignment.center),
+                        ),
+                      ),
                     ),
-                    const Text('this is a test message',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 25.0))
+                    Text(
+                      calls[index].tts,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 25.0),
+                    )
                   ],
                 ),
               );
@@ -115,11 +124,11 @@ class _MyHomePageState extends State<MyHomePage> {
             MaterialPageRoute(
                 fullscreenDialog: true,
                 builder: (context) =>
-                    AddCallRoute(dao: widget.dao, camera: widget.camera)),
+                    ManageCallsRoute(dao: widget.dao, camera: widget.camera)),
           );
         },
-        tooltip: 'Add Call',
-        child: const Icon(Icons.add),
+        tooltip: 'Manage calls',
+        child: const Icon(Icons.list_alt_outlined),
       ),
     );
   }
