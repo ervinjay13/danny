@@ -22,10 +22,8 @@ class _CameraRouteState extends State<CameraRoute> {
 
     // To display the current output from the Camera,
     // create a CameraController.
-    _controller = CameraController(
-      widget.camera,
-      ResolutionPreset.medium,
-    );
+    _controller = CameraController(widget.camera, ResolutionPreset.high,
+        enableAudio: false, imageFormatGroup: ImageFormatGroup.jpeg);
 
     _initializeControllerFuture = _controller.initialize();
   }
@@ -48,8 +46,41 @@ class _CameraRouteState extends State<CameraRoute> {
         future: _initializeControllerFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            // If the Future is complete, display the preview.
-            return CameraPreview(_controller);
+            var size = MediaQuery.of(context).size.width;
+
+            return SizedBox(
+              width: size,
+              height: size,
+              child: ClipRect(
+                child: OverflowBox(
+                  alignment: Alignment.center,
+                  child: FittedBox(
+                    fit: BoxFit.fitWidth,
+                    child: SizedBox(
+                      width: size,
+                      height: size / _controller.value.aspectRatio,
+                      child: CameraPreview(_controller),
+                    ),
+                  ),
+                ),
+              ),
+            );
+
+            // If the Future is complete, display the preview (as a square image).
+            /*  return AspectRatio(
+              aspectRatio: 1,
+              child: ClipRect(
+                child: Transform.scale(
+                  scale: 1 / _controller.value.aspectRatio,
+                  child: Center(
+                    child: AspectRatio(
+                      aspectRatio: _controller.value.aspectRatio,
+                      child: CameraPreview(_controller),
+                    ),
+                  ),
+                ),
+              ),
+            );*/
           } else {
             // Otherwise, display a loading indicator.
             return const Center(child: CircularProgressIndicator());
@@ -71,7 +102,7 @@ class _CameraRouteState extends State<CameraRoute> {
             final image = await _controller.takePicture();
 
             if (!mounted) return;
-            
+
             // Go back, but with context of the path to the image.
             Navigator.of(context).pop(image.path);
 

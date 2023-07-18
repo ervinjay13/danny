@@ -1,1 +1,7 @@
 # Builds a testing android release on CI
+
+name: Project Danny CI
+
+on:
+  push:
+    branches: [main]
