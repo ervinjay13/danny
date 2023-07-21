@@ -37,6 +37,7 @@ class _ManageCallsRouteState extends State<ManageCallsRoute> {
             itemCount: calls.length,
             itemBuilder: (_, index) {
               return ListTile(
+                contentPadding: const EdgeInsets.fromLTRB(4.0, 4.0, 4.0, 4.0),
                 title: Text(calls[index].tts,
                     maxLines: 2, overflow: TextOverflow.ellipsis),
                 leading: AspectRatio(
