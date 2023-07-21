@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:camera/camera.dart';
 import 'package:project_danny/common/call.dart';
 import 'package:project_danny/common/call_dao.dart';
-import 'package:project_danny/routes/add_call_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:project_danny/routes/manage_calls_route.dart';
@@ -12,6 +11,20 @@ import 'common/database.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Setup TTS
+  final tts = FlutterTts();
+
+  await tts.setSharedInstance(true);
+
+  await tts.setIosAudioCategory(
+      IosTextToSpeechAudioCategory.playback,
+      [
+        IosTextToSpeechAudioCategoryOptions.allowBluetooth,
+        IosTextToSpeechAudioCategoryOptions.allowBluetoothA2DP,
+        IosTextToSpeechAudioCategoryOptions.mixWithOthers
+      ],
+      IosTextToSpeechAudioMode.voicePrompt);
 
   // Initialize the database
   final database =
@@ -26,14 +39,15 @@ Future<void> main() async {
   // Get a specific camera from the list of available cameras.
   final camera = cameras.first;
 
-  runApp(MyApp(dao, camera));
+  runApp(MyApp(dao, camera, tts));
 }
 
 class MyApp extends StatelessWidget {
   final CallDao dao;
   final CameraDescription camera;
+  final FlutterTts tts;
 
-  const MyApp(this.dao, this.camera, {super.key});
+  const MyApp(this.dao, this.camera, this.tts, {super.key});
 
   // This widget is the root of your application.
   @override
@@ -44,17 +58,18 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.cyan),
         useMaterial3: true,
       ),
-      home: MyHomePage(dao: dao, camera: camera),
+      home: MyHomePage(dao: dao, camera: camera, tts: tts),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({super.key, required this.dao, required this.camera});
+  const MyHomePage(
+      {super.key, required this.dao, required this.camera, required this.tts});
 
   final CallDao dao;
   final CameraDescription camera;
-  final FlutterTts tts = FlutterTts();
+  final FlutterTts tts;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
