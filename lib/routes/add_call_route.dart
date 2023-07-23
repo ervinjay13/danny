@@ -137,7 +137,7 @@ class _AddCallRouteState extends State<AddCallRoute> {
         },
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
           // Handle the case of removing an existing image
           if (_image != null) {
@@ -184,9 +184,8 @@ class _AddCallRouteState extends State<AddCallRoute> {
             );
           }
         },
-        shape: const CircleBorder(),
-        tooltip: (_image == null ? "Take photo" : "Remove photo"),
-        child: (_image == null
+        label: Text(_image == null ? "Take photo" : "Remove image"),
+        icon: (_image == null
             ? const Icon(Icons.camera_alt)
             : const Icon(Icons.cancel)),
       ),

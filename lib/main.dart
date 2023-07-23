@@ -55,9 +55,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Project Danny',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.cyan),
-        useMaterial3: true,
-      ),
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.cyan),
+          useMaterial3: true),
       home: MyHomePage(dao: dao, camera: camera, tts: tts),
     );
   }
@@ -82,11 +81,27 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    bool isPortrait =
+        MediaQuery.of(context).orientation == Orientation.portrait;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
         title: const Text('Project Danny'),
+        actions: [
+          IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ManageCallsRoute(
+                          dao: widget.dao, camera: widget.camera)),
+                );
+              },
+              tooltip: 'Manage calls',
+              icon: const Icon(Icons.list_alt_outlined))
+        ],
       ),
       body: StreamBuilder<List<Call>>(
         stream: widget.dao.getCallsAsStream(),
@@ -95,55 +110,69 @@ class _MyHomePageState extends State<MyHomePage> {
 
           final calls = snapshot.requireData;
 
-          return ListView.builder(
+          return GridView.builder(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: isPortrait ? 2 : 4,
+              mainAxisSpacing: 12.0,
+              crossAxisSpacing: 12.0,
+            ),
+            padding: const EdgeInsets.all(12.0),
             itemCount: calls.length,
             itemBuilder: (_, index) {
               return Container(
-                // height: 500,
-                margin: const EdgeInsets.fromLTRB(12.0, 12.0, 12.0, 0.0),
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                ),
-                child: Stack(
-                  alignment: Alignment.bottomCenter,
-                  children: [
-                    GestureDetector(
-                      onTap: () => _invokeButtonCall(calls[index]),
-                      child: AspectRatio(
+                margin: const EdgeInsets.all(0.0),
+                child: GestureDetector(
+                  onTap: () => _invokeButtonCall(calls[index]),
+                  child: Stack(
+                    alignment: Alignment.bottomCenter,
+                    children: [
+                      AspectRatio(
                         aspectRatio: 1.0,
                         child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8.0),
+                          borderRadius: BorderRadius.circular(10.0),
                           child: Image.memory(
                               base64Decode(calls[index].imageBase64),
                               fit: BoxFit.cover,
                               alignment: Alignment.center),
                         ),
                       ),
-                    ),
-                    Text(
-                      calls[index].tts,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 25.0),
-                    )
-                  ],
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Colors.black.withOpacity(0.8),
+                            width: 2.0,
+                          ),
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10.0),
+                          gradient: LinearGradient(
+                            begin: FractionalOffset.topCenter,
+                            end: FractionalOffset.bottomCenter,
+                            colors: [
+                              Colors.black.withOpacity(0.0),
+                              Colors.black.withOpacity(0.5),
+                            ],
+                            stops: const [0.75, 1.0],
+                          ),
+                        ),
+                      ),
+                      Container(
+                        margin: const EdgeInsets.all(8.0),
+                        child: Text(
+                          calls[index].tts,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                              fontSize: 20.0,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               );
             },
           );
         },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-                fullscreenDialog: true,
-                builder: (context) =>
-                    ManageCallsRoute(dao: widget.dao, camera: widget.camera)),
-          );
-        },
-        tooltip: 'Manage calls',
-        child: const Icon(Icons.list_alt_outlined),
       ),
     );
   }
