@@ -94,6 +94,7 @@ class _AddCallRouteState extends State<AddCallRoute> {
       },
       label: const Text("Take photo"),
       icon: const Icon(Icons.camera_alt),
+      heroTag: "takePhotoHT",
     );
 
     var uploadImageFAB = FloatingActionButton.extended(
@@ -117,6 +118,7 @@ class _AddCallRouteState extends State<AddCallRoute> {
       },
       label: const Text("Upload image"),
       icon: const Icon(Icons.file_upload_outlined),
+      heroTag: "uploadImageHT",
     );
 
     var removeImageFAB = FloatingActionButton.extended(

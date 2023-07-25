@@ -244,6 +244,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           child: Image.memory(
                               base64Decode(calls[index].imageBase64),
                               fit: BoxFit.cover,
+                              gaplessPlayback: true,
                               alignment: Alignment.center),
                         ),
                       ),
