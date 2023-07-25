@@ -34,16 +34,17 @@ class _ManageCallsRouteState extends State<ManageCallsRoute> {
           final calls = snapshot.requireData;
 
           return ListView.separated(
+            padding: const EdgeInsets.all(8.0),
             itemCount: calls.length,
             itemBuilder: (_, index) {
               return ListTile(
-                contentPadding: const EdgeInsets.fromLTRB(4.0, 4.0, 4.0, 4.0),
+                contentPadding: const EdgeInsets.all(0.0),
                 title: Text(calls[index].tts,
                     maxLines: 2, overflow: TextOverflow.ellipsis),
                 leading: AspectRatio(
                   aspectRatio: 1.0,
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8.0),
+                    borderRadius: BorderRadius.circular(10.0),
                     child: Image.memory(base64Decode(calls[index].imageBase64),
                         fit: BoxFit.cover, alignment: Alignment.center),
                   ),
@@ -56,7 +57,6 @@ class _ManageCallsRouteState extends State<ManageCallsRoute> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            fullscreenDialog: true,
                             builder: (context) => AddCallRoute(
                                 dao: widget.dao, camera: widget.camera),
                           ),
@@ -77,19 +77,18 @@ class _ManageCallsRouteState extends State<ManageCallsRoute> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           Navigator.push(
             context,
             MaterialPageRoute(
-              fullscreenDialog: true,
               builder: (context) =>
                   AddCallRoute(dao: widget.dao, camera: widget.camera),
             ),
           );
         },
-        tooltip: 'New call',
-        child: const Icon(Icons.add),
+        label: const Text('Add'),
+        icon: const Icon(Icons.add),
       ),
     );
   }
