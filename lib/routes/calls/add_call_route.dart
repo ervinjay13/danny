@@ -1,110 +1,132 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../common/call.dart';
 import '../../common/call_dao.dart';
 
 class AddCallRoute extends StatefulWidget {
-  const AddCallRoute({super.key, required this.dao, required this.camera});
+  const AddCallRoute({super.key, required this.dao, this.call});
 
   final CallDao dao;
-  final CameraDescription camera;
+  final Call? call;
 
   @override
   State<AddCallRoute> createState() => _AddCallRouteState();
 }
 
 class _AddCallRouteState extends State<AddCallRoute> {
-  late CameraController _controller;
-  late Future<void> _initializeControllerFuture;
-
-  // The path of the image
-  XFile? _image;
+  // Raw image data
+  String? _image64;
 
   // Controllers for form
   final TextEditingController ttsController = TextEditingController();
+
+  // The actual picker used to grab images
+  final ImagePicker picker = ImagePicker();
 
   @override
   void initState() {
     super.initState();
 
-    // Check for cameras on the device
-    availableCameras();
-
-    // To display the current output from the Camera,
-    // create a CameraController.
-    _controller = CameraController(widget.camera, ResolutionPreset.high,
-        enableAudio: false, imageFormatGroup: ImageFormatGroup.jpeg);
-
-    _initializeControllerFuture = _controller.initialize();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
+    // Set existing data (if not null, aka we are editing)
+    if (widget.call != null) {
+      ttsController.text = widget.call!.tts;
+      _image64 = widget.call!.imageBase64;
+    }
   }
 
   bool _isValid() {
-    return ttsController.text.isNotEmpty && _image != null;
+    return ttsController.text.isNotEmpty && _image64 != null;
   }
 
   @override
   Widget build(BuildContext context) {
+    // Build our custom FABs
+
+    List<Widget> fabList = [];
+
+    var takePhotoFAB = FloatingActionButton.extended(
+      onPressed: () async {
+        var image = await picker.pickImage(
+            source: ImageSource.camera, maxWidth: 1024, maxHeight: 1024);
+
+        final bytes = await File(image!.path).readAsBytes();
+
+        setState(() {
+          _image64 = base64Encode(bytes);
+        });
+      },
+      label: const Text("Take photo"),
+      icon: const Icon(Icons.camera_alt),
+    );
+
+    var uploadImageFAB = FloatingActionButton.extended(
+      onPressed: () async {
+        var image = await picker.pickImage(
+            source: ImageSource.gallery, maxWidth: 1024, maxHeight: 1024);
+
+        final bytes = await File(image!.path).readAsBytes();
+
+        setState(() {
+          _image64 = base64Encode(bytes);
+        });
+      },
+      label: const Text("Upload image"),
+      icon: const Icon(Icons.file_upload_outlined),
+    );
+
+    var removeImageFAB = FloatingActionButton.extended(
+      onPressed: () {
+        setState(() {
+          _image64 = null;
+        });
+      },
+      label: const Text("Remove image"),
+      icon: const Icon(Icons.cancel),
+    );
+
+    if (_image64 == null) {
+      fabList.add(takePhotoFAB);
+      fabList.add(const SizedBox(width: 30));
+      fabList.add(uploadImageFAB);
+    } else {
+      fabList.add(removeImageFAB);
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('New call'),
+        title: (widget.call == null
+            ? const Text('New Call')
+            : const Text('Edit call')),
         actions: <Widget>[
           IconButton(
               onPressed: () {
                 final tts = ttsController.text;
-                String img64 = "";
-
-                if (_image != null) {
-                  final bytes = File(_image!.path).readAsBytesSync();
-                  img64 = base64Encode(bytes);
-                }
-
-                widget.dao.insertCall(Call(null, tts, img64));
+                widget.dao.insertCall(Call(null, tts, _image64!));
                 Navigator.of(context).pop();
               },
               tooltip: "Save call",
               icon: const Icon(Icons.save))
         ],
       ),
-      body: FutureBuilder<void>(
-        future: _initializeControllerFuture,
-        builder: (context, snapshot) {
-          var size = MediaQuery.of(context).size.width;
+      body: Builder(
+        builder: (context) {
+          Widget imagePreview;
 
-          Widget cameraPreview;
-
-          // We need to determine what to display in the camera / photo section. This can either be
-          // a loading indicator (for when the camera is loading), the existing image, or the camera
-          // preview to take a new photo
-          if (snapshot.connectionState == ConnectionState.done) {
-            if (_image == null) {
-              cameraPreview = AspectRatio(
-                aspectRatio: 1.0,
-                child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8.0),
-                    child: CameraPreview(_controller)),
-              );
-            } else {
-              cameraPreview = AspectRatio(
-                aspectRatio: 1.0,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8.0),
-                  child: Image.file(File(_image!.path),
-                      fit: BoxFit.cover, alignment: Alignment.center),
-                ),
-              );
-            }
+          if (_image64 == null) {
+            imagePreview = Container();
           } else {
-            cameraPreview = const Center(child: CircularProgressIndicator());
+            imagePreview = AspectRatio(
+              aspectRatio: 1.0,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8.0),
+                child: Image.memory(base64Decode(_image64!),
+                    fit: BoxFit.cover, alignment: Alignment.center),
+              ),
+            );
           }
 
           // Return the default style
@@ -127,7 +149,7 @@ class _AddCallRouteState extends State<AddCallRoute> {
                     controller: ttsController,
                   ),
                   const SizedBox(height: 15),
-                  cameraPreview,
+                  imagePreview,
                 ],
               ),
             ),
@@ -135,57 +157,9 @@ class _AddCallRouteState extends State<AddCallRoute> {
         },
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          // Handle the case of removing an existing image
-          if (_image != null) {
-            setState(() {
-              _image = null;
-            });
-
-            return;
-          }
-
-          // Take the Picture in a try / catch block. If anything goes wrong,
-          // catch the error.
-          try {
-            // Ensure that the camera is initialized.
-            await _initializeControllerFuture;
-
-            // Attempt to take a picture and get the file `image`
-            // where it was saved.
-            var image = await _controller.takePicture();
-
-            // Set our state to ensure the UI is updated
-            setState(() {
-              _image = image;
-            });
-          } catch (e) {
-            // Setup an alert dialog to show the error back to the user
-            AlertDialog alert = AlertDialog(
-              title: const Text("Error taking photo"),
-              content: Text(e.toString()),
-              actions: [
-                TextButton(
-                  child: const Text("OK"),
-                  onPressed: () {},
-                ),
-              ],
-            );
-
-            // show the dialog
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return alert;
-              },
-            );
-          }
-        },
-        label: Text(_image == null ? "Take photo" : "Remove image"),
-        icon: (_image == null
-            ? const Icon(Icons.camera_alt)
-            : const Icon(Icons.cancel)),
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: fabList,
       ),
     );
   }

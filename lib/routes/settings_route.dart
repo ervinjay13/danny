@@ -6,10 +6,9 @@ import '../common/call_dao.dart';
 import 'calls/add_call_route.dart';
 
 class SettingsRoute extends StatefulWidget {
-  const SettingsRoute({super.key, required this.dao, required this.camera});
+  const SettingsRoute({super.key, required this.dao});
 
   final CallDao dao;
-  final CameraDescription camera;
 
   @override
   State<StatefulWidget> createState() => _SettingsRouteState();
@@ -50,7 +49,7 @@ class _SettingsRouteState extends State<SettingsRoute> {
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
-                          AddCallRoute(dao: widget.dao, camera: widget.camera),
+                          AddCallRoute(dao: widget.dao, call: call),
                     ),
                   );
                 },
@@ -58,8 +57,7 @@ class _SettingsRouteState extends State<SettingsRoute> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          AddCallRoute(dao: widget.dao, camera: widget.camera),
+                      builder: (context) => AddCallRoute(dao: widget.dao),
                     ),
                   );
                 }),

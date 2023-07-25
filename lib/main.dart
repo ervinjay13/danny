@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:camera/camera.dart';
 import 'package:flutter/services.dart';
 import 'package:project_danny/common/call.dart';
 import 'package:project_danny/common/call_dao.dart';
@@ -34,21 +33,14 @@ Future<void> main() async {
   // dao that the app will interact with
   final dao = database.callDao;
 
-  // Obtain a list of the available cameras on the device.
-  final cameras = await availableCameras();
-
-  // Get a specific camera from the list of available cameras.
-  final camera = cameras.first;
-
-  runApp(MyApp(dao, camera, tts));
+  runApp(MyApp(dao, tts));
 }
 
 class MyApp extends StatelessWidget {
   final CallDao dao;
-  final CameraDescription camera;
   final FlutterTts tts;
 
-  const MyApp(this.dao, this.camera, this.tts, {super.key});
+  const MyApp(this.dao, this.tts, {super.key});
 
   // This widget is the root of your application.
   @override
@@ -59,17 +51,15 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
           brightness: Brightness.light,
           colorSchemeSeed: Colors.red),
-      home: MyHomePage(dao: dao, camera: camera, tts: tts),
+      home: MyHomePage(dao: dao, tts: tts),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage(
-      {super.key, required this.dao, required this.camera, required this.tts});
+  const MyHomePage({super.key, required this.dao, required this.tts});
 
   final CallDao dao;
-  final CameraDescription camera;
   final FlutterTts tts;
 
   @override
@@ -131,21 +121,14 @@ class _MyHomePageState extends State<MyHomePage> {
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => SettingsRoute(
-                                            dao: widget.dao,
-                                            camera: widget.camera)));
+                                        builder: (context) =>
+                                            SettingsRoute(dao: widget.dao)));
                               }
                             },
                           ),
                         ],
                       );
                     });
-
-                /*Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => SettingsRoute(
-                            dao: widget.dao, camera: widget.camera)));*/
               },
               tooltip: 'Settings',
               icon: const Icon(Icons.settings))

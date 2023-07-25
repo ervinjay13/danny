@@ -7,7 +7,10 @@ import '../common/call_dao.dart';
 
 class ManageCallsList extends StatefulWidget {
   const ManageCallsList(
-      {super.key, required this.dao, required this.onEditCall, required this.onNewCall});
+      {super.key,
+      required this.dao,
+      required this.onEditCall,
+      required this.onNewCall});
 
   final CallDao dao;
   final Function(Call call) onEditCall;
@@ -63,12 +66,28 @@ class _ManageCallsListState extends State<ManageCallsList> {
                 contentPadding: const EdgeInsets.all(0.0),
                 title: Text(calls[index].tts,
                     maxLines: 2, overflow: TextOverflow.ellipsis),
-                leading: AspectRatio(
-                  aspectRatio: 1.0,
-                  child: ClipRRect(
+                leading: Container(
+                  decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10.0),
-                    child: Image.memory(base64Decode(calls[index].imageBase64),
-                        fit: BoxFit.cover, alignment: Alignment.center),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.35),
+                        spreadRadius: 1,
+                        blurRadius: 3,
+                        offset:
+                            const Offset(0, 2), // changes position of shadow
+                      ),
+                    ],
+                  ),
+                  child: AspectRatio(
+                    aspectRatio: 1.0,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10.0),
+                      child: Image.memory(
+                          base64Decode(calls[index].imageBase64),
+                          fit: BoxFit.cover,
+                          alignment: Alignment.center),
+                    ),
                   ),
                 ),
                 trailing: Wrap(spacing: 4, children: [
