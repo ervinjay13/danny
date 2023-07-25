@@ -18,6 +18,8 @@ class AddCallRoute extends StatefulWidget {
 }
 
 class _AddCallRouteState extends State<AddCallRoute> {
+  bool _loading = false;
+
   // Raw image data
   String? _image64;
 
@@ -73,11 +75,21 @@ class _AddCallRouteState extends State<AddCallRoute> {
 
     var takePhotoFAB = FloatingActionButton.extended(
       onPressed: () async {
+        // Do nothing while loading
+        if (_loading) {
+          return;
+        }
+
+        setState(() {
+          _loading = true;
+        });
+
         var image = await picker.pickImage(source: ImageSource.camera);
         final croppedImage64 = await _cropSizeAndConvertImage(image!.path);
 
         setState(() {
           _image64 = croppedImage64;
+          _loading = false;
         });
       },
       label: const Text("Take photo"),
@@ -86,11 +98,21 @@ class _AddCallRouteState extends State<AddCallRoute> {
 
     var uploadImageFAB = FloatingActionButton.extended(
       onPressed: () async {
+        // Do nothing while loading
+        if (_loading) {
+          return;
+        }
+
+        setState(() {
+          _loading = true;
+        });
+
         var image = await picker.pickImage(source: ImageSource.gallery);
         final croppedImage64 = await _cropSizeAndConvertImage(image!.path);
 
         setState(() {
           _image64 = croppedImage64;
+          _loading = false;
         });
       },
       label: const Text("Upload image"),
@@ -115,83 +137,98 @@ class _AddCallRouteState extends State<AddCallRoute> {
       fabList.add(removeImageFAB);
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: (widget.call == null
-            ? const Text('New Call')
-            : const Text('Edit call')),
-        actions: <Widget>[
-          IconButton(
-              onPressed: () {
-                final tts = ttsController.text;
-                var existingCall = widget.call;
-
-                if (tts.isNotEmpty && _image64 != null) {
-                  if (existingCall == null) {
-                    widget.dao.insertCall(Call(null, tts, _image64!));
-                  } else {
-                    widget.dao
-                        .updateCall(Call(existingCall.id, tts, _image64!));
+    return LayoutBuilder(
+      builder: (context, constraints) => Scaffold(
+        appBar: AppBar(
+          title: (widget.call == null
+              ? const Text('New Call')
+              : const Text('Edit call')),
+          actions: <Widget>[
+            IconButton(
+                onPressed: () {
+                  // Do nothing while loading
+                  if (_loading) {
+                    return;
                   }
 
-                  Navigator.of(context).pop();
-                }
-              },
-              tooltip: "Save call",
-              icon: const Icon(Icons.save))
-        ],
-      ),
-      body: Builder(
-        builder: (context) {
-          Widget imagePreview;
+                  final tts = ttsController.text;
+                  var existingCall = widget.call;
 
-          if (_image64 == null) {
-            imagePreview = Container();
-          } else {
-            imagePreview = Expanded(
-              child: AspectRatio(
-                aspectRatio: 1.0,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8.0),
-                  child: Image.memory(base64Decode(_image64!),
-                      fit: BoxFit.cover, alignment: Alignment.center),
+                  if (tts.isNotEmpty && _image64 != null) {
+                    if (existingCall == null) {
+                      widget.dao.insertCall(Call(null, tts, _image64!));
+                    } else {
+                      widget.dao
+                          .updateCall(Call(existingCall.id, tts, _image64!));
+                    }
+
+                    Navigator.of(context).pop();
+                  }
+                },
+                tooltip: "Save call",
+                icon: const Icon(Icons.save))
+          ],
+        ),
+        body: Builder(
+          builder: (context) {
+            // Show a loading indicator
+            if (_loading == true) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            Widget imagePreview;
+
+            if (_image64 == null) {
+              imagePreview = Container();
+            } else {
+              imagePreview = ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: constraints.maxHeight - 240,
+                ),
+                child: AspectRatio(
+                  aspectRatio: 1.0,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8.0),
+                    child: Image.memory(base64Decode(_image64!),
+                        fit: BoxFit.cover, alignment: Alignment.center),
+                  ),
+                ),
+              );
+            }
+
+            // Return the default style
+            return Container(
+              padding: const EdgeInsets.all(20.0),
+              alignment: Alignment.topCenter,
+              child: Form(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    const Text(
+                        "Take a photo or upload an existing image using the buttons below"),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      keyboardType: TextInputType.multiline,
+                      maxLines: null,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Text to Speech',
+                      ),
+                      controller: ttsController,
+                    ),
+                    const SizedBox(height: 16),
+                    imagePreview,
+                  ],
                 ),
               ),
             );
-          }
-
-          // Return the default style
-          return Container(
-            padding: const EdgeInsets.all(20.0),
-            alignment: Alignment.topCenter,
-            child: Form(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  const Text(
-                      "Take a photo or upload an existing image using the buttons below"),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    keyboardType: TextInputType.multiline,
-                    maxLines: null,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Text to Speech',
-                    ),
-                    controller: ttsController,
-                  ),
-                  const SizedBox(height: 16),
-                  imagePreview,
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: fabList,
+          },
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        floatingActionButton: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: fabList,
+        ),
       ),
     );
   }
