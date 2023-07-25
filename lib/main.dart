@@ -135,24 +135,26 @@ class _MyHomePageState extends State<MyHomePage> {
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) =>
-                                            SettingsRoute(dao: widget.dao)));
+                                        builder: (context) => SettingsRoute(
+                                            dao: widget.dao,
+                                            preferences: widget.preferences)));
                               } else {
                                 showDialog(
                                   context: context,
                                   builder: ((context) {
                                     return AlertDialog(
-                                        title: const Text('Invalid PIN'),
-                                        content: const Text(
-                                            'The entered PIN was incorrect, please try again'),
-                                        actions: <Widget>[
-                                          MaterialButton(
-                                            child: const Text('OK'),
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                            },
-                                          )
-                                        ]);
+                                      title: const Text('Invalid PIN'),
+                                      content: const Text(
+                                          'The entered PIN was incorrect, please try again'),
+                                      actions: <Widget>[
+                                        MaterialButton(
+                                          child: const Text('OK'),
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                        )
+                                      ],
+                                    );
                                   }),
                                 );
                               }

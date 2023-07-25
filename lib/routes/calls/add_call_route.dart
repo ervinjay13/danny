@@ -143,8 +143,8 @@ class _AddCallRouteState extends State<AddCallRoute> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  const Text("Click the photo button below to take a photo"),
-                  const SizedBox(height: 15),
+                  const Text("Take a photo or upload an existing image using the buttons below"),
+                  const SizedBox(height: 16),
                   TextFormField(
                     keyboardType: TextInputType.multiline,
                     maxLines: null,
@@ -154,7 +154,7 @@ class _AddCallRouteState extends State<AddCallRoute> {
                     ),
                     controller: ttsController,
                   ),
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 16),
                   imagePreview,
                 ],
               ),
