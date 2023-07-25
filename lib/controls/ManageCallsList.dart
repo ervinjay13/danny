@@ -1,37 +1,59 @@
 import 'dart:convert';
 
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 
 import '../common/call.dart';
 import '../common/call_dao.dart';
-import 'add_call_route.dart';
 
-class ManageCallsRoute extends StatefulWidget {
-  const ManageCallsRoute({super.key, required this.dao, required this.camera});
+class ManageCallsList extends StatefulWidget {
+  const ManageCallsList(
+      {super.key, required this.dao, required this.onEditCall, required this.onNewCall});
 
   final CallDao dao;
-  final CameraDescription camera;
+  final Function(Call call) onEditCall;
+  final Function() onNewCall;
 
   @override
-  State<ManageCallsRoute> createState() => _ManageCallsRouteState();
+  State<ManageCallsList> createState() => _ManageCallsListState();
 }
 
-class _ManageCallsRouteState extends State<ManageCallsRoute> {
+class _ManageCallsListState extends State<ManageCallsList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Theme.of(context).colorScheme.onPrimary,
-        title: const Text('Manage calls'),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => widget.onNewCall(),
+        label: const Text('New call'),
+        icon: const Icon(Icons.add),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       body: StreamBuilder<List<Call>>(
         stream: widget.dao.getCallsAsStream(),
         builder: (_, snapshot) {
-          if (!snapshot.hasData) return Container();
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
           final calls = snapshot.requireData;
+
+          if (calls.isEmpty) {
+            return const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text('No Calls',
+                      style:
+                          TextStyle(fontSize: 38, fontWeight: FontWeight.w200)),
+                  SizedBox(height: 24),
+                  Text(
+                      '"Calls" are images that are associated with a spoken phrase.'),
+                  SizedBox(height: 4),
+                  Text('Tap the "New call" button to create your first call!')
+                ],
+              ),
+            );
+          }
 
           return ListView.separated(
             padding: const EdgeInsets.all(8.0),
@@ -53,21 +75,11 @@ class _ManageCallsRouteState extends State<ManageCallsRoute> {
                   IconButton(
                       icon: const Icon(Icons.edit),
                       tooltip: "Edit call",
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => AddCallRoute(
-                                dao: widget.dao, camera: widget.camera),
-                          ),
-                        );
-                      }),
+                      onPressed: () => widget.onEditCall(calls[index])),
                   IconButton(
                       icon: const Icon(Icons.delete, color: Colors.red),
                       tooltip: "Delete call",
-                      onPressed: () {
-                        widget.dao.deleteCall(calls[index]);
-                      })
+                      onPressed: () => widget.dao.deleteCall(calls[index]))
                 ]),
               );
             },
@@ -76,19 +88,6 @@ class _ManageCallsRouteState extends State<ManageCallsRoute> {
             },
           );
         },
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  AddCallRoute(dao: widget.dao, camera: widget.camera),
-            ),
-          );
-        },
-        label: const Text('Add'),
-        icon: const Icon(Icons.add),
       ),
     );
   }

@@ -37,6 +37,8 @@ dependencies:
   path_provider:
   path:
   cupertino_icons: ^1.0.5
+  shared_preferences: ^2.2.0
+  image_picker: ^1.0.1
 
 dev_dependencies:
   flutter_test:

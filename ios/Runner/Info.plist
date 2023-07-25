@@ -2,8 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+    <key>NSPhotoLibraryUsageDescription</key>
+	<string>Project Danny requires access to your library to upload photos of objects when creating calls</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Required to take photos of objects when creating calls</string>
+	<string>Project Danny requires camera access to take photos of objects when creating calls</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Project Danny requires camera access to take photos of objects when creating calls</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>

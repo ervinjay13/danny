@@ -4,8 +4,8 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 
-import '../common/call.dart';
-import '../common/call_dao.dart';
+import '../../common/call.dart';
+import '../../common/call_dao.dart';
 
 class AddCallRoute extends StatefulWidget {
   const AddCallRoute({super.key, required this.dao, required this.camera});
@@ -56,8 +56,6 @@ class _AddCallRouteState extends State<AddCallRoute> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Theme.of(context).colorScheme.onPrimary,
         title: const Text('New call'),
         actions: <Widget>[
           IconButton(
