@@ -6,6 +6,7 @@ import 'package:project_danny/common/call_dao.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:project_danny/routes/settings_route.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'common/database.dart';
 
@@ -33,14 +34,17 @@ Future<void> main() async {
   // dao that the app will interact with
   final dao = database.callDao;
 
-  runApp(MyApp(dao, tts));
+  final preferences = await SharedPreferences.getInstance();
+
+  runApp(MyApp(dao, tts, preferences));
 }
 
 class MyApp extends StatelessWidget {
   final CallDao dao;
   final FlutterTts tts;
+  final SharedPreferences preferences;
 
-  const MyApp(this.dao, this.tts, {super.key});
+  const MyApp(this.dao, this.tts, this.preferences, {super.key});
 
   // This widget is the root of your application.
   @override
@@ -51,16 +55,21 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
           brightness: Brightness.light,
           colorSchemeSeed: Colors.red),
-      home: MyHomePage(dao: dao, tts: tts),
+      home: MyHomePage(dao: dao, tts: tts, preferences: preferences),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.dao, required this.tts});
+  const MyHomePage(
+      {super.key,
+      required this.dao,
+      required this.tts,
+      required this.preferences});
 
   final CallDao dao;
   final FlutterTts tts;
+  final SharedPreferences preferences;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -117,12 +126,35 @@ class _MyHomePageState extends State<MyHomePage> {
                             onPressed: () {
                               Navigator.pop(context);
 
-                              if (pinController.text == '0000') {
+                              // Get the saved PIN (or 0000 by default)
+                              var savedPIN =
+                                  widget.preferences.getString('pin') ?? '0000';
+
+                              // Only navigate to settings if this is accurate
+                              if (pinController.text == savedPIN) {
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) =>
                                             SettingsRoute(dao: widget.dao)));
+                              } else {
+                                showDialog(
+                                  context: context,
+                                  builder: ((context) {
+                                    return AlertDialog(
+                                        title: const Text('Invalid PIN'),
+                                        content: const Text(
+                                            'The entered PIN was incorrect, please try again'),
+                                        actions: <Widget>[
+                                          MaterialButton(
+                                            child: const Text('OK'),
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                            },
+                                          )
+                                        ]);
+                                  }),
+                                );
                               }
                             },
                           ),
