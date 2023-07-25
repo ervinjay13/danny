@@ -76,8 +76,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  void _invokeButtonCall(Call call) {
-    widget.tts.speak(call.tts);
+  Future _invokeButtonCall(Call call) async {
+    await widget.tts.stop();
+    await widget.tts.speak(call.tts);
   }
 
   @override
@@ -225,7 +226,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ],
                 ),
                 child: GestureDetector(
-                  onTap: () => _invokeButtonCall(calls[index]),
+                  onTap: () async => await _invokeButtonCall(calls[index]),
                   child: Stack(
                     alignment: Alignment.bottomCenter,
                     children: [
