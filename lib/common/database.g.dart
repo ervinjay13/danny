@@ -113,6 +113,16 @@ class _$CallDao extends CallDao {
                   'imageBase64': item.imageBase64
                 },
             changeListener),
+        _callUpdateAdapter = UpdateAdapter(
+            database,
+            'Call',
+            ['id'],
+            (Call item) => <String, Object?>{
+                  'id': item.id,
+                  'tts': item.tts,
+                  'imageBase64': item.imageBase64
+                },
+            changeListener),
         _callDeletionAdapter = DeletionAdapter(
             database,
             'Call',
@@ -131,6 +141,8 @@ class _$CallDao extends CallDao {
   final QueryAdapter _queryAdapter;
 
   final InsertionAdapter<Call> _callInsertionAdapter;
+
+  final UpdateAdapter<Call> _callUpdateAdapter;
 
   final DeletionAdapter<Call> _callDeletionAdapter;
 
@@ -158,6 +170,11 @@ class _$CallDao extends CallDao {
   @override
   Future<void> insertCall(Call call) async {
     await _callInsertionAdapter.insert(call, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> updateCall(Call call) async {
+    await _callUpdateAdapter.update(call, OnConflictStrategy.abort);
   }
 
   @override

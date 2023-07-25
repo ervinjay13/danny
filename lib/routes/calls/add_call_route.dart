@@ -38,10 +38,6 @@ class _AddCallRouteState extends State<AddCallRoute> {
     }
   }
 
-  bool _isValid() {
-    return ttsController.text.isNotEmpty && _image64 != null;
-  }
-
   @override
   Widget build(BuildContext context) {
     // Build our custom FABs
@@ -105,8 +101,18 @@ class _AddCallRouteState extends State<AddCallRoute> {
           IconButton(
               onPressed: () {
                 final tts = ttsController.text;
-                widget.dao.insertCall(Call(null, tts, _image64!));
-                Navigator.of(context).pop();
+                var existingCall = widget.call;
+
+                if (tts.isNotEmpty && _image64 != null) {
+                  if (existingCall == null) {
+                    widget.dao.insertCall(Call(null, tts, _image64!));
+                  } else {
+                    widget.dao
+                        .updateCall(Call(existingCall.id, tts, _image64!));
+                  }
+
+                  Navigator.of(context).pop();
+                }
               },
               tooltip: "Save call",
               icon: const Icon(Icons.save))
