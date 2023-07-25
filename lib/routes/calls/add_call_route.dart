@@ -1,8 +1,8 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:image/image.dart' as img;
 
 import '../../common/call.dart';
 import '../../common/call_dao.dart';
@@ -38,6 +38,33 @@ class _AddCallRouteState extends State<AddCallRoute> {
     }
   }
 
+  Future<String> _cropSizeAndConvertImage(String path) async {
+    var image = await img.decodeImageFile(path);
+    if (image == null) throw Exception("Unable to decode image");
+
+    // By default, this size
+    var size = 1024;
+
+    // Ensure we can crop to width
+    if (image.width <= size) {
+      size = image.width;
+    }
+
+    // Ensure we can crop to height
+    if (image.height <= size) {
+      size = image.height;
+    }
+
+    // Crop and resize the image so we are always a square format, and
+    // not too big
+    image = img.copyResizeCropSquare(image, size: size);
+
+    // Always store as a JPG to try keep formats consistent (and smaller)
+    final bytes = img.encodeJpg(image, quality: 100);
+
+    return base64Encode(bytes);
+  }
+
   @override
   Widget build(BuildContext context) {
     // Build our custom FABs
@@ -46,13 +73,11 @@ class _AddCallRouteState extends State<AddCallRoute> {
 
     var takePhotoFAB = FloatingActionButton.extended(
       onPressed: () async {
-        var image = await picker.pickImage(
-            source: ImageSource.camera, maxWidth: 1024, maxHeight: 1024);
-
-        final bytes = await File(image!.path).readAsBytes();
+        var image = await picker.pickImage(source: ImageSource.camera);
+        final croppedImage64 = await _cropSizeAndConvertImage(image!.path);
 
         setState(() {
-          _image64 = base64Encode(bytes);
+          _image64 = croppedImage64;
         });
       },
       label: const Text("Take photo"),
@@ -61,13 +86,11 @@ class _AddCallRouteState extends State<AddCallRoute> {
 
     var uploadImageFAB = FloatingActionButton.extended(
       onPressed: () async {
-        var image = await picker.pickImage(
-            source: ImageSource.gallery, maxWidth: 1024, maxHeight: 1024);
-
-        final bytes = await File(image!.path).readAsBytes();
+        var image = await picker.pickImage(source: ImageSource.gallery);
+        final croppedImage64 = await _cropSizeAndConvertImage(image!.path);
 
         setState(() {
-          _image64 = base64Encode(bytes);
+          _image64 = croppedImage64;
         });
       },
       label: const Text("Upload image"),
@@ -125,25 +148,28 @@ class _AddCallRouteState extends State<AddCallRoute> {
           if (_image64 == null) {
             imagePreview = Container();
           } else {
-            imagePreview = AspectRatio(
-              aspectRatio: 1.0,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8.0),
-                child: Image.memory(base64Decode(_image64!),
-                    fit: BoxFit.cover, alignment: Alignment.center),
+            imagePreview = Expanded(
+              child: AspectRatio(
+                aspectRatio: 1.0,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8.0),
+                  child: Image.memory(base64Decode(_image64!),
+                      fit: BoxFit.cover, alignment: Alignment.center),
+                ),
               ),
             );
           }
 
           // Return the default style
           return Container(
-            padding: const EdgeInsets.only(top: 20, left: 20, right: 20),
+            padding: const EdgeInsets.all(20.0),
             alignment: Alignment.topCenter,
             child: Form(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  const Text("Take a photo or upload an existing image using the buttons below"),
+                  const Text(
+                      "Take a photo or upload an existing image using the buttons below"),
                   const SizedBox(height: 16),
                   TextFormField(
                     keyboardType: TextInputType.multiline,
