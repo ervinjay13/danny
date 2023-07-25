@@ -40,20 +40,26 @@ class _ManageCallsListState extends State<ManageCallsList> {
           final calls = snapshot.requireData;
 
           if (calls.isEmpty) {
-            return const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text('No Calls',
-                      style:
-                          TextStyle(fontSize: 38, fontWeight: FontWeight.w200)),
-                  SizedBox(height: 24),
-                  Text(
-                      '"Calls" are images that are associated with a spoken phrase.'),
-                  SizedBox(height: 4),
-                  Text('Tap the "New call" button to create your first call!')
-                ],
+            return Container(
+              margin: const EdgeInsets.all(20.0),
+              child: const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text('No Calls',
+                        style: TextStyle(
+                            fontSize: 38, fontWeight: FontWeight.w200),
+                        textAlign: TextAlign.center),
+                    SizedBox(height: 24),
+                    Text(
+                        '"Calls" are images that are associated with a spoken phrase.',
+                        textAlign: TextAlign.center),
+                    SizedBox(height: 4),
+                    Text('Tap the "New call" button to create your first call!',
+                        textAlign: TextAlign.center)
+                  ],
+                ),
               ),
             );
           }

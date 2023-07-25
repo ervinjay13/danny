@@ -179,26 +179,33 @@ class _MyHomePageState extends State<MyHomePage> {
           final calls = snapshot.requireData;
 
           if (calls.isEmpty) {
-            return const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text('Hello!',
-                      style:
-                          TextStyle(fontSize: 58, fontWeight: FontWeight.w200)),
-                  SizedBox(height: 34),
-                  Text('Welcome to Project Danny',
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-                  SizedBox(height: 8),
-                  Text(
-                      'To get started, tap the settings icon on the top right corner'),
-                  SizedBox(height: 4),
-                  Text(
-                      'You will be required to enter a PIN, by default this is "0000"'),
-                  SizedBox(height: 48),
-                ],
+            return Container(
+              margin: const EdgeInsets.all(20.0),
+              child: const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text('Hello!',
+                        style: TextStyle(
+                            fontSize: 58, fontWeight: FontWeight.w200),
+                        textAlign: TextAlign.center),
+                    SizedBox(height: 34),
+                    Text('Welcome to Project Danny',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w500),
+                        textAlign: TextAlign.center),
+                    SizedBox(height: 8),
+                    Text(
+                        'To get started, tap the settings icon on the top right corner',
+                        textAlign: TextAlign.center),
+                    SizedBox(height: 4),
+                    Text(
+                        'You will be required to enter a PIN, by default this is "0000"',
+                        textAlign: TextAlign.center),
+                    SizedBox(height: 48),
+                  ],
+                ),
               ),
             );
           }
